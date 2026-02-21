@@ -3,25 +3,30 @@ import { db } from "../db.js";
 
 const router = express.Router();
 
-// GET - This is what shows up when you visit the link in the browser
+// GET all moods to show history
 router.get("/", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM moods");
+    const [rows] = await db.query("SELECT * FROM moods ORDER BY id DESC");
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// POST - This is what happens when you click "Save to Database"
+// POST a new mood
 router.post("/", async (req, res) => {
   try {
-    const { mood_text } = req.body;
+    // This looks for 'mood_text' OR 'mood' just in case the frontend is stubborn
+    const mood_text = req.body.mood_text || req.body.mood;
     
-    // We insert into the table/column we see in your Railway screenshot
+    if (!mood_text) {
+      return res.status(400).json({ error: "No mood data received" });
+    }
+
+    // Insert into your Railway table 'moods' and column 'mood_text'
     await db.query("INSERT INTO moods (mood_text) VALUES (?)", [mood_text]);
     
-    res.json({ message: "Mood saved successfully!" });
+    res.json({ message: "Mood saved successfully!", savedValue: mood_text });
   } catch (error) {
     console.error("Database Error:", error);
     res.status(500).json({ error: error.message });
