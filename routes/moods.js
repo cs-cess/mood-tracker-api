@@ -3,28 +3,26 @@ import { db } from "../db.js";
 
 const router = express.Router();
 
-// POST - Save a mood
-router.post("/", async (req, res) => {
-  try {
-    const { mood_text } = req.body;
-    // This matches the simple table we discussed
-    await db.query("INSERT INTO mood_entries (mood_text) VALUES (?)", [mood_text]);
-    res.json({ message: "Mood saved!" });
-  } catch (error) {
-    console.error("Error saving mood:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // GET - Show moods
 router.get("/", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM mood_entries");
+    const [rows] = await db.query("SELECT * FROM moods");
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// THIS IS THE LINE YOU ARE MISSING
+// POST - Save a mood
+router.post("/", async (req, res) => {
+  try {
+    const { mood_text } = req.body;
+    // This matches the "moods" table name in your Railway screenshot
+    await db.query("INSERT INTO moods (mood_text) VALUES (?)", [mood_text]);
+    res.json({ message: "Mood saved!" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
